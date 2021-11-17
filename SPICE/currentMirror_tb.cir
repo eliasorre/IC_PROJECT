@@ -1,0 +1,20 @@
+* Include
+*----------------------------------------------------------------
+.include ../../models/ptm_130_aimspice.spi
+*.include ../../lib/SUN_TR_GF130N.spi
+
+.param w_n = 0.83u
+.param w_p = {w_n * 2.57}
+.param lu = 0.5u
+
+*----------------------------------------------------------------
+* Options
+*----------------------------------------------------------------
+.option TNOM=27 GMIN=1e-15 reltol=1e-6 abstol=1e-6
+VDD VDD VSS dc 1.5
+VSS VSS 0 dc 0
+
+.include currentMirror.cir
+XCM VDD 0 CASCADE_CURRENT_MIRROR
+
+.op

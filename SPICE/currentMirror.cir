@@ -1,0 +1,11 @@
+
+
+.SUBCKT CASCADE_CURRENT_MIRROR VDD VSS 
+
+Isource VSS MN3D dc 1u  
+MN1 MN1D MN1D VSS VSS nmos w=w_n l=lu m=5
+MN2 MN2D MN1D VSS VSS nmos w=w_n l=lu m=25
+MN3 MN3D MN3D MN1D MN1D nmos w=w_n l=lu m=5
+MN4 VDD MN3D MN2D MN2D nmos w=w_n l=lu m=25
+
+.ENDS

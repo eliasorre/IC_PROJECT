@@ -1,0 +1,60 @@
+* Pixel sensor
+**********************************************************************
+**        Copyright (c) 2021 Carsten Wulff Software, Norway
+** *******************************************************************
+** Created       : wulff at 2021-7-22
+** *******************************************************************
+**  The MIT License (MIT)
+**
+**  Permission is hereby granted, free of charge, to any person obtaining a copy
+**  of this software and associated documentation files (the "Software"), to deal
+**  in the Software without restriction, including without limitation the rights
+**  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+**  copies of the Software, and to permit persons to whom the Software is
+**  furnished to do so, subject to the following conditions:
+**
+**  The above copyright notice and this permission notice shall be included in all
+**  copies or substantial portions of the Software.
+**
+**  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+**  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+**  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+**  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+**  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+**  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+**  SOFTWARE.
+**
+**********************************************************************
+* Include
+*----------------------------------------------------------------
+.include ../../models/ptm_130.spi
+.include ../../lib/SUN_TRIO_GF130N.spi
+
+
+*----------------------------------------------------------------
+* Options
+*----------------------------------------------------------------
+.option TNOM=27 GMIN=1e-15 reltol=1e-6 abstol=1e-6
+
+
+* Paramater
+.param w_n = 1.13u
+.param w_p = {w_n * 1}
+.param lu = 0.65u
+
+* Sources 
+VDD VDD VSS dc VDD
+VSS VSS 0 dc 0
+V2 VSTORE 0 dc 0 
+VRA VRAMP_TEST 0 dc 0.75
+
+MP1 VDD MPS1 MPS1 VSS pmos w=w_p l=lu
+MP2 VDD MPS1 MPS2 VSS pmos w=w_p l=lu
+MN3 MPS1 VSTORE MNS3 VSS nmos w=w_n l=lu
+MN4 MPS2 VRAMP MNS3 VSS nmos w=w_n l=lu
+MN5 MNS3 VBN1 VSS VSS nmos w=w_n l=lu
+MP6 VDD MPS2 VCMP_OUT VSS pmos w=w_p l=lu
+MN7 VCMP_OUT VBN1 VSS VSS nmos w=w_n l=lu
+
+.dc V2 0 1.5 0.01 
+.plot V(VCMP_OUT) V(V2) V(VSTORE) V(VSS) V(VCMP_OUT)
