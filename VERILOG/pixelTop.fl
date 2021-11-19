@@ -1,7 +1,0 @@
-pixelSensor.v
-pixelArray.v
-pixelSensorFsm.v
-grayCounter.v
-grayToBinary.v
-pixelTop.v
-pixelTop_tb.v

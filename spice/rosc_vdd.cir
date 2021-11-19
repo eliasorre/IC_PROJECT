@@ -1,0 +1,294 @@
+* Pixel sensor testbench
+**********************************************************************
+**        Copyright (c) 2021 Carsten Wulff Software, Norway
+** *******************************************************************
+** Created       : wulff at 2021-7-22
+** *******************************************************************
+**  The MIT License (MIT)
+**
+**  Permission is hereby granted, free of charge, to any person obtaining a copy
+**  of this software and associated documentation files (the "Software"), to deal
+**  in the Software without restriction, including without limitation the rights
+**  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+**  copies of the Software, and to permit persons to whom the Software is
+**  furnished to do so, subject to the following conditions:
+**
+**  The above copyright notice and this permission notice shall be included in all
+**  copies or substantial portions of the Software.
+**
+**  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+**  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+**  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+**  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+**  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+**  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+**  SOFTWARE.
+**
+**********************************************************************
+
+*----------------------------------------------------------------
+* Include
+*----------------------------------------------------------------
+.include ../../models/ptm_130_ngspice.spi
+.include ../../lib/SUN_TR_GF130N.spi
+
+*----------------------------------------------------------------
+* Options
+*----------------------------------------------------------------
+*.option TNOM=27 GMIN=1e-15 reltol=1e-6 abstol=1e-6
+*----------------------------------------------------------------
+*.option TNOM=27 GMIN=1e-15 reltol=1e-6 abstol=1e-6
+
+*----------------------------------------------------------------
+* PARAMETERS
+*----------------------------------------------------------------
+
+.param TRF = 10n
+.param TCLK = 100n
+.param C_ERASE = 5
+.param C_EXPOSE = {expose}
+.param C_CONVERT = 255
+.param C_READ = 5
+
+*- Pulse Width of control signals
+.param PW_ERASE =  {(C_ERASE +1)*TCLK}
+.param PW_EXPOSE =  {(C_EXPOSE +1)*TCLK}
+.param PW_CONVERT =  {(C_CONVERT +1)*TCLK}
+.param PW_READ =  {(C_READ +1)*TCLK}
+
+*- Delay of control signals
+.param TD_ERASE = {TCLK }
+.param TD_EXPOSE = {TD_ERASE + PW_ERASE + TCLK}
+.param TD_CONVERT = {TD_EXPOSE + PW_EXPOSE + TCLK}
+.param TD_READ = {TD_CONVERT + PW_CONVERT + TCLK}
+.param PERIOD = {TD_READ + PW_READ + TCLK}
+
+*- Analog parameters
+.param VDD = 1.5
+.param VADC_MIN = 0.55
+.param VADC_MAX = 1.1   
+.param VADC_REF = {VADC_MAX - VADC_MIN}
+.param VADC_LSB = {VADC_REF/256}
+
+*----------------------------------------------------------------
+* Sources
+*----------------------------------------------------------------
+VDD VDD VSS dc VDD
+VSS VSS 0 dc 0
+
+*- Control signals
+VERASE ERASE 0 dc 0 pulse (0 VDD TD_ERASE TRF TRF PW_ERASE PERIOD)
+VEXPOSE EXPOSE 0 dc 0 pulse (0 VDD TD_EXPOSE TRF TRF PW_EXPOSE PERIOD)
+VCONVERT CONVERT 0 dc 0 pulse (0 VDD TD_CONVERT TRF TRF PW_CONVERT PERIOD)
+VREAD READ 0 dc 0 pulse (0 VDD TD_READ TRF TRF PW_READ PERIOD)
+
+*- ADC related sources
+VREF VREF 0 DC VADC_REF
+VMAX VMAX 0 DC VADC_MAX
+VRESET VRESET VMAX DC 0
+VMIN VMIN 0 DC VADC_MIN
+
+
+*----------------------------------------------------------------
+* BIAS
+*----------------------------------------------------------------
+* Use a current mirror transistor from the SUN_TR_GF130N library
+IPB1 0 VBN1 dc 1u
+XMNB0 VBN1 VBN1 VSS VSS NCHCM2
+
+*----------------------------------------------------------------
+* DUT
+*----------------------------------------------------------------
+.include pixelSensor_copy.cir
+XDUT VBN1 VRAMP VRESET ERASE EXPOSE READ
++ DATA_7 DATA_6 DATA_5 DATA_4 DATA_3 DATA_2 DATA_1 DATA_0 VDD VSS PIXEL_SENSOR
+
+XDUT2 VBN1 VRAMP VRESET ERASE EXPOSE READ
++ TESTDATA_7 TESTDATA_6 TESTDATA_5 TESTDATA_4 TESTDATA_3 TESTDATA_2 TESTDATA_1 TESTDATA_0 VDD VSS PIXEL_SENSOR
+
+*----------------------------------------------------------------
+* RAMP
+*----------------------------------------------------------------
+* Use a capacitor and current source to model a ramp
+* I = C x dV/dt, where
+* dt = PW_CONVERT
+* C = 1n
+* dV = VADC_MAX - VADC_MIN
+BR1 0 VRAMP I = V(CONVERT)*( 1n*(VADC_MAX - VADC_MIN)/PW_CONVERT)
+CR1 VRAMP 0 1n ic=0
+
+* SPICE freaks out if any node only have current sources and capacitors on it. so insert a resistor to ground
+R1 VRAMP 0 1T
+
+* Model reset as a variable resistor to
+BR2 VRAMP VMIN I=V(ERASE)*V(VRAMP,VMIN)/100
+
+
+*----------------------------------------------------------------
+* Model the ramp generation and data for the memory
+*----------------------------------------------------------------
+* I could not really think of a good way to generate digital signals in SPICE
+* So I generated the analog ramp, then digitize it to generate the DATA bit
+* In a real world circuit we would use a DAC, because in SystemVerilog, it's
+* easy to generate a digital bus
+B1 VADC 0 V = V(VRAMP) - VADC_MIN
+XADC7 VADC   REST_7 VREF DATA_0  READ CONVERT VDD ADC_1BIT
+XADC6 REST_7 REST_6 VREF DATA_1  READ CONVERT VDD ADC_1BIT
+XADC5 REST_6 REST_5 VREF DATA_2  READ CONVERT VDD ADC_1BIT
+XADC4 REST_5 REST_4 VREF DATA_3  READ CONVERT VDD ADC_1BIT
+XADC3 REST_4 REST_3 VREF DATA_4  READ CONVERT VDD ADC_1BIT
+XADC2 REST_3 REST_2 VREF DATA_5  READ CONVERT VDD ADC_1BIT
+XADC1 REST_2 REST_1 VREF DATA_6  READ CONVERT VDD ADC_1BIT
+XADC0 REST_1 REST_0 VREF DATA_7  READ CONVERT VDD ADC_1BIT
+XADCTODIG DATA_0 DATA_1 DATA_2 DATA_3 DATA_4 DATA_5 DATA_6 DATA_7
++ DIG_BIN0 DIG_BIN1 DIG_BIN2 DIG_BIN3 DIG_BIN4 DIG_BIN5 DIG_BIN6 DIG_BIN7 ADC8BIT
+XGRAYCOUNT DIG_BIN0 DIG_BIN1 DIG_BIN2 DIG_BIN3 DIG_BIN3 DIG_BIN4 DIG_BIN5 DIG_BIN6 DIG_BIN7
++ GRAY_TMP0 GRAY_TMP1 GRAY_TMP2 GRAY_TMP3 GRAY_TMP4 GRAY_TMP5 GRAY_TMP6 GRAY_TMP7 GRAY_COUNT_8BIT
+aread [READ] [READ_D] adc_buff
+.model adc_buff adc_bridge(in_low = 0.3 in_high = 0.5)
+XCONTROL GRAY_TMP0 GRAY_TMP1 GRAY_TMP2 GRAY_TMP3 GRAY_TMP4 GRAY_TMP5 GRAY_TMP6 GRAY_TMP7 READ_D
++ GRAY_0 GRAY_1 GRAY_2 GRAY_3 GRAY_4 GRAY_5 GRAY_6 GRAY_7 CONTROL
+xGRAY_TO_DATA GRAY_0 GRAY_1 GRAY_2 GRAY_3 GRAY_4 GRAY_5 GRAY_6 GRAY_7
++ TESTDATA_7 TESTDATA_6 TESTDATA_5 TESTDATA_4 TESTDATA_3 TESTDATA_2 TESTDATA_1 TESTDATA_0 GRAY_TO_DATA
+
+* XCONTROL TESTDATA_0 TESTDATA_1 TESTDATA_2 TESTDATA_3 TESTDATA_4 TESTDATA_5 TESTDATA_6 TESTDATA_7 CONVERT 
+* + NEWDATA_0 NEWDATA_1 NEWDATA_2 NEWDATA_3 NEWDATA_4 NEWDATA_5 NEWDATA_6 NEWDATA_7 CONTROL_GATES
+XDAC0 DATA_7 DATA_6 DATA_5 DATA_4 DATA_3 DATA_2 DATA_1 DATA_0 DO VDD DAC_8BIT
+
+*----------------------------------------------------------------
+* 1-bit ADC model
+*----------------------------------------------------------------
+* Use the well know fact that we can connect multiple 1 bit ADCs in series,
+* as long as we multiply the analog remainder by two.
+* Or in maths:
+*   if in > ref/2:
+*      d = 1
+*      out = 2*in - ref
+*   else:
+*      d = 0
+*      out = 2*in
+*
+* Model the DATA output as pulled to VDD when we're reading
+.SUBCKT ADC_1BIT VIN VOUT VREF DATA READ CONVERT VDD
+B1 D 0 V= V(VIN) > V(VREF)/2 ? 1 : 0
+B2 VOUT 0  V = 2*(V(VIN) - V(VREF)/2*V(D))
+B3 DATA_INT 0 V = V(D)*V(VDD)
+B4 DATA_INT DATA I=V(CONVERT)*V(DATA_INT,DATA)/1k
+B5 DATA VDD I=V(READ)*V(DATA,VDD)/1e4
+.ENDS
+
+
+*----------------------------------------------------------------
+* 8-bit DAC model model
+*----------------------------------------------------------------
+* integer = 2^7*b7 + 2^6*b6 ... 2^0*b0
+.SUBCKT DAC_8BIT DATA_7 DATA_6 DATA_5 DATA_4 DATA_3 DATA_2 DATA_1 DATA_0 DO VDD
+B1 DO_VDD 0 V = 128*V(DATA_7) + 64*V(DATA_6) + 32*V(DATA_5) + 16*V(DATA_4)+ 8*V(DATA_3) + 4*V(DATA_2) + 2*V(DATA_1) + 1*V(DATA_0)
+B2 DO 0 V = V(DO_VDD)/V(VDD)
+.ENDS
+
+
+// Digitilize Carstens ADC (funny in a way)
+.SUBCKT ADC8BIT BIN_DATA0 BIN_DATA1 BIN_DATA2 BIN_DATA3 BIN_DATA4 BIN_DATA5 BIN_DATA6 BIN_DATA7
++ DIG_BIN0 DIG_BIN1 DIG_BIN2 DIG_BIN3 DIG_BIN4 DIG_BIN5 DIG_BIN6 DIG_BIN7
+    .model adc_buff adc_bridge(in_low = 0.3 in_high = 0.5)
+    abin0 [BIN_DATA0] [DIG_BIN0] adc_buff
+    abin1 [BIN_DATA1] [DIG_BIN1] adc_buff
+    abin2 [BIN_DATA2] [DIG_BIN2] adc_buff
+    abin3 [BIN_DATA3] [DIG_BIN3] adc_buff
+    abin4 [BIN_DATA4] [DIG_BIN4] adc_buff
+    abin5 [BIN_DATA5] [DIG_BIN5] adc_buff
+    abin6 [BIN_DATA6] [DIG_BIN6] adc_buff
+    abin7 [BIN_DATA7] [DIG_BIN7] adc_buff
+   
+.ENDS
+
+* .SUBCKT CONTROL_GATES GRAY_0 GRAY_1 GRAY_2 GRAY_3 GRAY_4 GRAY_5 GRAY_6 GRAY_7 CONVERT
+* + DATA_7 DATA_6 DATA_5 DATA_4 DATA_3 DATA_2 DATA_1 DATA_0
+*     M1 GRAY_0 CONVERT DATA_0 DATA_0 nmos w=0.8u l=0.13u
+*     M2 GRAY_1 CONVERT DATA_1 DATA_1 nmos w=0.8u l=0.13u
+*     M3 GRAY_2 CONVERT DATA_2 DATA_2 nmos w=0.8u l=0.13u
+*     M4 GRAY_3 CONVERT DATA_3 DATA_3 nmos w=0.8u l=0.13u
+*     M5 GRAY_4 CONVERT DATA_4 DATA_4 nmos w=0.8u l=0.13u
+*     M6 GRAY_5 CONVERT DATA_5 DATA_5 nmos w=0.8u l=0.13u
+*     M7 GRAY_6 CONVERT DATA_6 DATA_6 nmos w=0.8u l=0.13u
+*     M8 GRAY_7 CONVERT DATA_7 DATA_7 nmos w=0.8u l=0.13u
+* .ENDS
+
+.SUBCKT GRAY_COUNT_8BIT DIG_BIN0 DIG_BIN1 DIG_BIN2 DIG_BIN3 DIG_BIN3 DIG_BIN4 DIG_BIN5 DIG_BIN6 DIG_BIN7
++ GRAY_TMP0 GRAY_TMP1 GRAY_TMP2 GRAY_TMP3 GRAY_TMP4 GRAY_TMP5 GRAY_TMP6 GRAY_TMP7
+    .model xor1 d_xor(rise_delay = 0.5e-9 fall_delay = 0.3e-9
+    + input_load = 0.5e-12)
+    aXO0 [DIG_BIN7 DIG_BIN6] GRAY_TMP7 xor1
+    aXO1 [DIG_BIN6 DIG_BIN5] GRAY_TMP6 xor1
+    aXO2 [DIG_BIN5 DIG_BIN4] GRAY_TMP5 xor1
+    aXO3 [DIG_BIN4 DIG_BIN3] GRAY_TMP4 xor1
+    aXO4 [DIG_BIN3 DIG_BIN2] GRAY_TMP3 xor1
+    aXO5 [DIG_BIN2 DIG_BIN1] GRAY_TMP2 xor1
+    aXO6 [DIG_BIN1 DIG_BIN0] GRAY_TMP1 xor1
+    aGO7 DIG_BIN0 GRAY_TMP0 buff1
+    .model buff1 d_buffer(rise_delay = 0.5e-12 fall_delay = 0.3e-12
+    + input_load = 0.5e-12)
+.ENDS
+
+.SUBCKT GRAY_TO_DATA GRAY_0 GRAY_1 GRAY_2 GRAY_3 GRAY_4 GRAY_5 GRAY_6 GRAY_7
++ DATA_7 DATA_6 DATA_5 DATA_4 DATA_3 DATA_2 DATA_1 DATA_0
+    .model dac1 dac_bridge(out_low = 0 out_high = 1.2 out_undef = 0.5
+    + input_load = 5.0e-12 t_rise = 50e-9 t_fall = 20e-9)    
+    abridge0 [GRAY_0] [DATA_0] dac1
+    abridge1 [GRAY_1] [DATA_1] dac1
+    abridge2 [GRAY_2] [DATA_2] dac1
+    abridge3 [GRAY_3] [DATA_3] dac1
+    abridge4 [GRAY_4] [DATA_4] dac1
+    abridge5 [GRAY_5] [DATA_5] dac1
+    abridge6 [GRAY_6] [DATA_6] dac1
+    abridge7 [GRAY_7] [DATA_7] dac1
+.ENDS
+
+.SUBCKT CONTROL GRAY_TMP0 GRAY_TMP1 GRAY_TMP2 GRAY_TMP3 GRAY_TMP4 GRAY_TMP5 GRAY_TMP6 GRAY_TMP7 READ_D
+    + GRAY_0 GRAY_1 GRAY_2 GRAY_3 GRAY_4 GRAY_5 GRAY_6 GRAY_7
+    .model or1 d_or(rise_delay = 0.5e-18 fall_delay = 0.3e-18
+    + input_load = 0.5e-12)
+    aor0 [GRAY_TMP0 READ_D] GRAY_0 or1
+    aor1 [GRAY_TMP1 READ_D] GRAY_1 or1
+    aor2 [GRAY_TMP2 READ_D] GRAY_2 or1
+    aor3 [GRAY_TMP3 READ_D] GRAY_3 or1
+    aor4 [GRAY_TMP4 READ_D] GRAY_4 or1
+    aor5 [GRAY_TMP5 READ_D] GRAY_5 or1
+    aor6 [GRAY_TMP6 READ_D] GRAY_6 or1
+    aor7 [GRAY_TMP7 READ_D] GRAY_7 or1
+    .model buff1 d_buffer(rise_delay = 0.5e-12 fall_delay = 0.3e-12
+    + input_load = 0.5e-12)
+.ENDS
+
+
+
+*----------------------------------------------------------------
+* NGSPICE control
+*----------------------------------------------------------------
+
+.control
+set color0=white
+set color1=black
+unset askquit
+tran 1n 80u
+* plot V(ERASE) V(EXPOSE) V(CONVERT) V(READ)
+* plot V(VRAMP) V(CONVERT) V(ERASE)
+* plot V(DO)
+* plot V(XDUT2.VSTORE) V(ERASE) V(EXPOSE) V(CONVERT) V(VRAMP) V(XDUT2.VCMP_OUT) V(READ)
+
+* plot v(XDUT2.VCMP_OUT)
+hardcopy plot9 (XDUT2.VSTORE)* plot v(XDUT2.xs1.vpg)
+* plot v(XDUT2.xc1.TEST_OUT)
+
+* plot v(xdut2.xm1.xm1.vg) v(xdut2.xm1.xm1.dmem) 
+* plot v(xdut2.xm1.xm2.vg) v(xdut2.xm1.xm2.dmem) 
+* plot v(xdut2.xm1.xm3.vg) v(xdut2.xm1.xm3.dmem) 
+* plot v(xdut2.xm1.xm4.vg) v(xdut2.xm1.xm4.dmem) 
+* plot v(xdut2.xm1.xm5.vg) v(xdut2.xm1.xm5.dmem) 
+* plot v(xdut2.xm1.xm6.vg) v(xdut2.xm1.xm6.dmem) 
+* plot v(xdut2.xm1.xm7.vg) v(xdut2.xm1.xm7.dmem) 
+* plot v(xdut2.xm1.xm8.vg) v(xdut2.xm1.xm8.dmem) 
+
+.endc
+.end

@@ -1,0 +1,238 @@
+
+No compatibility mode selected!
+
+
+Circuit: * pixel sensor testbench
+
+Reducing trtol to 1 for xspice 'A' devices
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Note: Starting true gmin stepping
+Trying gmin =   1.0000E-03 Warning: Further gmin increment
+Trying gmin =   5.6234E-03 Note: One successful gmin step
+Trying gmin =   3.1623E-03 Warning: Further gmin increment
+Trying gmin =   4.8697E-03 Note: One successful gmin step
+Trying gmin =   3.9242E-03 Warning: Further gmin increment
+Trying gmin =   4.6138E-03 Note: One successful gmin step
+Trying gmin =   4.2551E-03 Note: One successful gmin step
+Trying gmin =   3.7685E-03 Warning: Further gmin increment
+Trying gmin =   4.1278E-03 Warning: Further gmin increment
+Trying gmin =   4.2229E-03 Warning: Further gmin increment
+Trying gmin =   4.2470E-03 Warning: Further gmin increment
+Trying gmin =   4.2530E-03 Note: One successful gmin step
+Trying gmin =   4.2500E-03 Warning: Further gmin increment
+Trying gmin =   4.2523E-03 Note: One successful gmin step
+Trying gmin =   4.2512E-03 Note: One successful gmin step
+Trying gmin =   4.2495E-03 Warning: Further gmin increment
+Trying gmin =   4.2507E-03 Note: One successful gmin step
+Trying gmin =   4.2505E-03 Note: One successful gmin step
+Trying gmin =   4.2502E-03 Warning: Further gmin increment
+Trying gmin =   4.2504E-03 Note: One successful gmin step
+Trying gmin =   4.2502E-03 Note: One successful gmin step
+Trying gmin =   4.2500E-03 Warning: Further gmin increment
+Trying gmin =   4.2502E-03 Note: One successful gmin step
+Trying gmin =   4.2500E-03 Warning: Further gmin increment
+Trying gmin =   4.2501E-03 Warning: Last gmin step failed
+Warning: True gmin stepping failed
+Note: Starting dynamic gmin stepping
+Trying gmin =   1.0000E-03 Note: One successful gmin step
+Trying gmin =   1.0000E-04 Note: One successful gmin step
+Trying gmin =   1.0000E-05 Note: One successful gmin step
+Trying gmin =   3.1623E-06 Note: One successful gmin step
+Trying gmin =   5.6234E-07 Note: One successful gmin step
+Trying gmin =   5.6234E-08 Note: One successful gmin step
+Trying gmin =   5.6234E-09 Note: One successful gmin step
+Trying gmin =   5.6234E-10 Note: One successful gmin step
+Trying gmin =   5.6234E-11 Note: One successful gmin step
+Trying gmin =   5.6234E-12 Note: One successful gmin step
+Trying gmin =   1.0000E-12 Note: One successful gmin step
+Note: Dynamic gmin stepping completed
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdd                                        1.5
+vss                                          0
+erase                                        0
+expose                                       0
+convert                                      0
+read                                         0
+vref                                      0.55
+vmax                                       1.1
+vreset                                     1.1
+vmin                                      0.55
+vbn1                                  0.253023
+xmnb0.xm0.n0                         0.0102668
+xmnb0.xm0.n1                         0.0246717
+xmnb0.xm0.n2                         0.0500712
+xmnb0.xm1.n0                         0.0500712
+xmnb0.xm1.n1                         0.0246717
+xmnb0.xm1.n2                         0.0102668
+xdut.vstore                           0.282211
+xdut.xs1.vpg                         0.0141203
+xdut.xc1.mps1                          1.25794
+xdut.xc1.mps2                         0.775149
+xdut.xc1.mns3                       0.00810558
+vramp                                 0.328674
+xdut.xc1.xcur.mn2d                     0.47833
+xdut.xc1.xcur.mn1d                    0.239165
+xdut.xc1.xcur.mno12d                0.00786959
+xdut.xc1.xcur.mno22d                    0.2763
+xdut.xc1.mp6s                          1.48607
+xdut.vcmp_out                      8.27945e-06
+xdut.xm1.xm1.vg                    2.95608e-11
+data_0                             2.73587e-11
+xdut.xm1.xm1.dmem                  4.40472e-12
+xdut.xm1.xm2.vg                    2.95608e-11
+data_1                             2.73587e-11
+xdut.xm1.xm2.dmem                  4.40472e-12
+xdut.xm1.xm3.vg                    2.95608e-11
+data_2                             2.73587e-11
+xdut.xm1.xm3.dmem                  4.40472e-12
+xdut.xm1.xm4.vg                    2.95608e-11
+data_3                             2.73587e-11
+xdut.xm1.xm4.dmem                  4.40472e-12
+xdut.xm1.xm5.vg                    2.95608e-11
+data_4                             2.73587e-11
+xdut.xm1.xm5.dmem                  4.40472e-12
+xdut.xm1.xm6.vg                    2.95608e-11
+data_5                             2.73587e-11
+xdut.xm1.xm6.dmem                  4.40472e-12
+xdut.xm1.xm7.vg                    2.95608e-11
+data_6                             2.73587e-11
+xdut.xm1.xm7.dmem                  4.40472e-12
+xdut.xm1.xm8.vg                    2.95608e-11
+data_7                             2.73587e-11
+xdut.xm1.xm8.dmem                  4.40472e-12
+xdut2.vstore                          0.282208
+xdut2.xs1.vpg                        0.0141203
+xdut2.xc1.mps1                         1.25794
+xdut2.xc1.mps2                        0.775118
+xdut2.xc1.mns3                      0.00810529
+xdut2.xc1.xcur.mn2d                    0.47833
+xdut2.xc1.xcur.mn1d                   0.239165
+xdut2.xc1.xcur.mno12d                0.0078693
+xdut2.xc1.xcur.mno22d                   0.2763
+xdut2.xc1.mp6s                         1.48607
+xdut2.vcmp_out                     8.27936e-06
+xdut2.xm1.xm1.vg                    2.2026e-12
+testdata_0                                   0
+xdut2.xm1.xm1.dmem                 3.78771e-18
+xdut2.xm1.xm2.vg                    2.2026e-12
+testdata_1                                   0
+xdut2.xm1.xm2.dmem                 3.78771e-18
+xdut2.xm1.xm3.vg                    2.2026e-12
+testdata_2                                   0
+xdut2.xm1.xm3.dmem                 1.95316e-18
+xdut2.xm1.xm4.vg                    2.2026e-12
+testdata_3                                   0
+xdut2.xm1.xm4.dmem                 1.95318e-18
+xdut2.xm1.xm5.vg                    2.2026e-12
+testdata_4                                   0
+xdut2.xm1.xm5.dmem                 1.95318e-18
+xdut2.xm1.xm6.vg                    2.2026e-12
+testdata_5                                   0
+xdut2.xm1.xm6.dmem                 1.95318e-18
+xdut2.xm1.xm7.vg                    2.2026e-12
+testdata_6                                   0
+xdut2.xm1.xm7.dmem                 1.24279e-18
+xdut2.xm1.xm8.vg                    2.2026e-12
+testdata_7                                   0
+xdut2.xm1.xm8.dmem                 3.78771e-18
+vadc                                 -0.221326
+xadc7.d                                      0
+rest_7                               -0.442653
+xadc7.data_int                               0
+xadc6.d                                      0
+rest_6                               -0.885306
+xadc6.data_int                               0
+xadc5.d                                      0
+rest_5                                -1.77061
+xadc5.data_int                               0
+xadc4.d                                      0
+rest_4                                -3.54122
+xadc4.data_int                               0
+xadc3.d                                      0
+rest_3                                -7.08245
+xadc3.data_int                               0
+xadc2.d                                      0
+rest_2                                -14.1649
+xadc2.data_int                               0
+xadc1.d                                      0
+rest_1                                -28.3298
+xadc1.data_int                               0
+xadc0.d                                      0
+rest_0                                -56.6596
+xadc0.data_int                               0
+xdac0.do_vdd                       6.97646e-09
+do                                 4.65097e-09
+b.xdac0.b2#branch                            0
+b.xdac0.b1#branch                            0
+b.xadc0.b3#branch                            0
+b.xadc0.b2#branch                            0
+b.xadc0.b1#branch                            0
+b.xadc1.b3#branch                            0
+b.xadc1.b2#branch                            0
+b.xadc1.b1#branch                            0
+b.xadc2.b3#branch                            0
+b.xadc2.b2#branch                            0
+b.xadc2.b1#branch                            0
+b.xadc3.b3#branch                            0
+b.xadc3.b2#branch                            0
+b.xadc3.b1#branch                            0
+b.xadc4.b3#branch                            0
+b.xadc4.b2#branch                            0
+b.xadc4.b1#branch                            0
+b.xadc5.b3#branch                            0
+b.xadc5.b2#branch                            0
+b.xadc5.b1#branch                            0
+b.xadc6.b3#branch                            0
+b.xadc6.b2#branch                            0
+b.xadc6.b1#branch                            0
+b.xadc7.b3#branch                            0
+b.xadc7.b2#branch                            0
+b.xadc7.b1#branch                            0
+b1#branch                                    0
+vmin#branch                                  0
+vreset#branch                     -9.34459e-11
+vmax#branch                       -9.34459e-11
+vref#branch                                  0
+vread#branch                       9.41249e-25
+vconvert#branch                              0
+vexpose#branch                      1.3281e-13
+verase#branch                      9.19076e-11
+vss#branch                               1e-06
+vdd#branch                        -1.25068e-05
+a.xgray_to_data.abridge7#branch_1_0     3.19591e-19
+a.xgray_to_data.abridge6#branch_1_0     3.19591e-19
+a.xgray_to_data.abridge5#branch_1_0     3.19591e-19
+a.xgray_to_data.abridge4#branch_1_0     3.19591e-19
+a.xgray_to_data.abridge3#branch_1_0     3.19591e-19
+a.xgray_to_data.abridge2#branch_1_0     3.19591e-19
+a.xgray_to_data.abridge1#branch_1_0     3.19591e-19
+a.xgray_to_data.abridge0#branch_1_0     3.19591e-19
+
+
+No. of Data Rows : 65695
+Error: no such vector vstore
+binary raw file "pixelSensor_tb_copy.raw"
+Reducing trtol to 1 for xspice 'A' devices
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+
+Total analysis time (seconds) = 25.48
+
+Total elapsed time (seconds) = 25.491 
+
+Total DRAM available = 31724.820 MB.
+DRAM currently available = 23865.902 MB.
+Maximum ngspice program size =  417.012 MB.
+Current ngspice program size =  352.355 MB.
+
+Shared ngspice pages =    9.367 MB.
+Text (code) pages =    5.355 MB.
+Stack = 0 bytes.
+Library pages =  401.348 MB.
+
